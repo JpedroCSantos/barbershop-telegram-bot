@@ -1,0 +1,1829 @@
+{
+  "name": "AI Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        608,
+        304
+      ],
+      "id": "9e382c36-74d4-46ce-8169-42cbf2000987",
+      "name": "Telegram Trigger",
+      "webhookId": "61e14389-abb2-4ed7-bf4a-c271c18b83fe",
+      "credentials": {
+        "telegramApi": {
+          "id": "9IebXQnmLDyZJUrx",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "78c7111b-c275-420b-918c-aee8fa8d6b0f",
+                    "leftValue": "={{ $json.intent }}",
+                    "rightValue": "cancelar",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Cancelar"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "f0a6e2f0-36c5-4d7f-af0a-d107cfcf060d",
+                    "leftValue": "={{ $json.intent }}",
+                    "rightValue": "marcar",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Marcar"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.intent }}",
+                    "rightValue": "consultar",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "13b53c85-12f2-4e7c-8b29-a5c8592cbd56"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Consultar"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        3472,
+        -32
+      ],
+      "id": "2ee80e89-d97c-4f7c-88ea-37a7a13c98b8",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Telegram Trigger').item.json.message.text || \"Olá\" }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=Você é um assistente virtual inteligente de uma barbearia.\nSua função é interpretar mensagens enviadas por clientes (via Telegram) e extrair informações estruturadas para automatizar o agendamento.\n\n🎯 Objetivo\n\nAnalise o texto recebido e retorne um JSON completo e válido, contendo os campos descritos abaixo.\n\n🧩 Campos obrigatórios\n\nvalid → true se a intenção for clara, senão false.\n\nintent → \"marcar\", \"consultar\" ou \"cancelar\".\n\nsubIntent → especificação adicional para o caso de \"consultar\".\nValores possíveis:\n\n\"disponibilidade\" → cliente quer saber horários vagos.\n\n\"meus_horarios\" → cliente quer saber seus próprios agendamentos.\n\nnull → não se aplica.\n\nbarbeiro → nome do barbeiro, se mencionado (senão null).\n\ndata → formato AAAA-MM-DD.\n\nSe for mencionado um dia da semana (ex: “terça-feira”), calcule a data correspondente à semana atual.\n\nSe nenhuma data for informada, use a data de hoje.\n\nSe já passou das 19h, use o dia seguinte.\n\nhora → hora do agendamento no formato HH, se mencionada (senão null).\n\nresumo → resumo curto e amigável do que foi entendido.\n\ndataFormatada → formato DD-MM.\n\ndiaDaSemana → nome do dia correspondente.\n\n📅 Data e hora de referência\n\nData atual: {{ $now.toFormat(\"yyyy-MM-dd\") }}\n\nData e hora atuais: {{ $now }}\n\n⚠️ Regras\n\nSempre retorne um JSON válido (sem texto adicional).\n\nSe não for possível identificar a intenção → \"valid\": false.\n\nSe for uma consulta, determine o tipo de consulta (campo subIntent).\n\nComplete automaticamente os campos faltantes conforme regras acima.\n\nQuando a mensagem for genérica (“olá”, emoji etc.) → valid = false.\n\n📤 Formato de saída esperado\n{\n  \"valid\": true,\n  \"intent\": \"consultar\",\n  \"subIntent\": \"disponibilidade\",\n  \"barbeiro\": null,\n  \"data\": \"2025-10-16\",\n  \"hora\": null,\n  \"resumo\": \"Você quer saber os horários disponíveis para quinta-feira.\",\n  \"dataFormatada\": \"16-10\",\n  \"diaDaSemana\": \"quinta-feira\"\n}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        976,
+        304
+      ],
+      "id": "12ee1c97-10e1-4865-8dbc-0635453abf54",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        944,
+        576
+      ],
+      "id": "4b7a44da-ab8b-48a9-8ffc-07d4f1d8fa78",
+      "name": "Google Gemini Chat Model3",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "C8WIOuXuiCNVJz7y",
+          "name": "Gemini_API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"valid\": true,\n  \"intent\": \"consultar\",\n  \"subIntent\": \"disponibilidade\",\n  \"barbeiro\": null,\n  \"data\": \"2025-10-16\",\n  \"hora\": null,\n  \"resumo\": \"Você quer saber os horários disponíveis para quinta-feira.\",\n  \"dataFormatada\": \"16-10\",\n  \"diaDaSemana\": \"quinta-feira\"\n}\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1168,
+        576
+      ],
+      "id": "f8032110-1b49-48ce-962e-a9928163e4bd",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "jsCode": "let item = $('AI Agent1').first().json.output;\nlet client = $input?.first()?.json\n\nif(client){\n  item.client = client\n}\n\nlet userRequest = null;\ntry {\n  userRequest = $('Agendar ou Consultar Disponibilidade').first().json?.data;\n} catch (error) {\n  console.log(\"Nó 'Agendar ou Consultar' não foi executado neste caminho do fluxo.\");\n}\n\nlet respostaBancoDeDados = null;\ntry {\n  respostaBancoDeDados = $('Get Employee').first().json;\n} catch (error) {\n  console.log(\"Nó 'Get Employee' não foi executado neste caminho do fluxo.\");\n}\n\nlet respostaUsuario = null;\ntry {\n  respostaUsuario = $('Seleciona Barbeiro').first().json?.data?.approved;\n} catch (error) {\n  console.log(\"Nó 'Seleciona Barbeiro' não foi executado neste caminho do fluxo.\");\n}\n\nif (!item.intent && userRequest) {\n  let userResponse = userRequest.approved ? \"consultar\" : \"marcar\";\n  item.intent = userResponse;\n}\n\nif (respostaBancoDeDados) {\n  item.barbeiro = respostaBancoDeDados.id;\n  return item;\n}\n\n// 3. Se não, define o barbeiro se a informação veio do 'Seleciona Barbeiro'.\nif (respostaUsuario !== null) {\n  if (respostaUsuario) { // Se a resposta foi 'approved' (true).\n    item.barbeiro = 1; // ID para a primeira opção.\n    item.barbeiroNome = `João`;\n  } else {\n    item.barbeiro = 2;\n    item.barbeiroNome = `Pedro`;\n  }\n  return item;\n}\n\nreturn item;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3312,
+        -16
+      ],
+      "id": "4d68d927-3f9f-46c6-a40a-d813d3e62a0d",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "93cfc2f4-fa8f-4448-8c99-13b77376fe79",
+              "leftValue": "={{ $json.output.barbeiro }}",
+              "rightValue": "[null]",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2064,
+        32
+      ],
+      "id": "ff28f3f3-cd9d-465e-85ed-1b3501df1dfe",
+      "name": "Possui Barbeiro?"
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "value": "barbershop",
+          "mode": "list",
+          "cachedResultName": "barbershop"
+        },
+        "table": {
+          "__rl": true,
+          "value": "employee",
+          "mode": "list",
+          "cachedResultName": "employee"
+        },
+        "where": {
+          "values": [
+            {
+              "column": "name",
+              "value": "={{ $json.output.barbeiro }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2336,
+        144
+      ],
+      "id": "56c62544-a609-4f78-bfb1-526819f69e21",
+      "name": "Get Employee",
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "DVJieuAmVV8lO2yh",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "95b17375-c522-4cf9-b8f8-54fc15333aef",
+              "leftValue": "={{ $json.data }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "a090eba6-35a0-4471-8a5a-6fcb4d36836a",
+              "leftValue": "={{ $json.hora }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3968,
+        -16
+      ],
+      "id": "b3e74754-a5ef-47ba-bc0e-a3db06602934",
+      "name": "Has date and hour"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT\n    code,\n    hora,\n    data\nFROM\n    barbershop.diary\nWHERE\n    client_id IS NULL\n    -- Match the integer ID with the integer variable\n    AND employe_id = {{ $('Code in JavaScript').item.json.barbeiro }}\n    -- Match the date column with the date variable, wrapped in quotes\n    AND data = '{{ $('Code in JavaScript').item.json.data }}'\n    -- Last condition, NO COMMA at the end\n    AND hora = {{ $('Code in JavaScript').item.json.hora }}\nORDER BY\n    hora ASC;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        4384,
+        -128
+      ],
+      "id": "c3ca2d52-c348-4552-9c4c-aafeb10bb2c0",
+      "name": "Get diary",
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "DVJieuAmVV8lO2yh",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "85a510a5-b34d-4dcb-87c5-0942497fc308",
+              "leftValue": "={{ $('Get diary').item.json }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        4640,
+        -128
+      ],
+      "id": "76d6c12b-28af-400a-8521-5ef421e9b431",
+      "name": "Horario Indisponivel",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "=\"Seu horário as  {{ $('AI Agent1').item.json.output.hora }}h no dia {{ $('AI Agent1').item.json.output.dataFormatada }} ({{ $('AI Agent1').item.json.output.diaDaSemana }}) com {{ $('AI Agent1').item.json.output.barbeiro || $('Code in JavaScript').item.json.barbeiroNome}} está confirmado!",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        5088,
+        48
+      ],
+      "id": "3b455c87-dbef-4e40-b5e2-f47843d85843",
+      "name": "Send a text message1",
+      "webhookId": "a192c2e9-93ee-4e3a-aa6e-e914c0bec78b",
+      "credentials": {
+        "telegramApi": {
+          "id": "9IebXQnmLDyZJUrx",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## AI Agent \n\nInterpretar mensagens de clientes",
+        "height": 528,
+        "width": 592,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        864,
+        208
+      ],
+      "typeVersion": 1,
+      "id": "3948d30a-5e9f-4a1c-8898-971b30fc191d",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "message": "Por favor, me informe o nome do barbeiro que você deseja consultar ou agendar",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double",
+            "approveLabel": "João",
+            "disapproveLabel": "Pedro"
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2336,
+        -128
+      ],
+      "id": "c142969e-1ee2-461e-9a70-71c77d5ab5e0",
+      "name": "Seleciona Barbeiro",
+      "webhookId": "bb8f3f6a-e44f-4702-86ac-713139f268e0",
+      "credentials": {
+        "telegramApi": {
+          "id": "9IebXQnmLDyZJUrx",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cb2e9fb2-0c55-4931-ac7b-e9744342d434",
+              "leftValue": "={{ $json.output.valid }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1280,
+        304
+      ],
+      "id": "19d356f1-58ea-4c8e-b82e-a939f637a2b7",
+      "name": "Solicitação Valida?"
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "message": "Olá! 👋 Sou o assistente virtual da barbearia. Selecione uma das opções abaixo para começar:",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double",
+            "approveLabel": "✂️ Meus Serviços",
+            "disapproveLabel": "🗓️ Agendar ou Consultar"
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1600,
+        672
+      ],
+      "id": "8f640b6d-f8f5-4483-8886-675f38ab0916",
+      "name": "Service Classification",
+      "webhookId": "9fceeac0-9bfa-4cd9-ba33-b1336f81c2d3",
+      "credentials": {
+        "telegramApi": {
+          "id": "9IebXQnmLDyZJUrx",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "=❌ O horário das {{ $('Code in JavaScript').item.json.hora }}h não está disponível no dia {{ $('Code in JavaScript').item.json.dataFormatada }} ({{ $('Code in JavaScript').item.json.diaDaSemana }}).",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        4880,
+        -144
+      ],
+      "id": "c824597d-9373-4f03-8313-f512933ce701",
+      "name": "Send a text message2",
+      "webhookId": "67fdda2d-4acf-4f7e-a84a-062124acd9d2",
+      "credentials": {
+        "telegramApi": {
+          "id": "9IebXQnmLDyZJUrx",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// const dados = $input.all();\nlet dados = $('Execute a SQL query');\n\nif (!dados?.first()?.json?.data){\n  return [{\n    json: {\n      mensagemParaUsuario: \"Você não possui agendamentos futuros\"\n    }\n  }];\n}\n\ndados = dados.all()\nconst agendamentosPorData = {};\n\nfor (const item of dados) {\n  const data = item.json.data;\n  const hora = item.json.hora;\n  const nome = item.json.name || \"seu barbeiro\";\n\n  if (!data || !hora) continue;\n\n  const dataISO = new Date(data).toISOString().substring(0, 10);\n  if (!agendamentosPorData[dataISO]) agendamentosPorData[dataISO] = [];\n  agendamentosPorData[dataISO].push({ hora, nome });\n}\n\n// Monta a mensagem\nlet mensagem = \"📅 *Seus próximos agendamentos:*\\n\\n\";\n\nfor (const data in agendamentosPorData) {\n  const dateObj = new Date(data.replace(/-/g, '/'));\n  const dataFormatada = dateObj.toLocaleDateString(\"pt-BR\", { day: \"2-digit\", month: \"2-digit\" });\n  const diaSemana = dateObj.toLocaleDateString(\"pt-BR\", { weekday: \"long\" });\n\n  mensagem += `📆 *${dataFormatada} (${diaSemana}):*\\n`;\n\n  const horarios = agendamentosPorData[data].sort((a, b) => a.hora - b.hora);\n  for (const h of horarios) {\n    mensagem += `- ${h.hora}:00 com ${h.nome}\\n`;\n  }\n  mensagem += \"\\n\";\n}\n\nconst caracteresParaEscapar = ['_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!'];\nconst regex = new RegExp(`[${caracteresParaEscapar.join('\\\\')}]`, 'g');\nmensagem = mensagem.replace(regex, '\\\\$&');\n\nreturn [{\n  json: {\n    mensagemParaUsuario: mensagem\n  }\n}];\n\nfunction isArrayEffectivelyEmpty(arr) {\n  if (!Array.isArray(arr)) {\n    return isEffectivelyEmpty(arr);\n  }\n  \n  if (arr.length === 0) {\n    return true;\n  }\n  \n  return arr.every(obj => \n    typeof obj === 'object' && obj !== null && Object.keys(obj).length === 0\n  );\n}\n\nfunction isEffectivelyEmpty(value) {\n  if (value === null || value === undefined) {\n    return true;\n  }\n\n  if (Array.isArray(value)) {\n    return value.length === 0;\n  }\n  \n  if (typeof value === 'string') {\n    const trimmedValue = value.trim();\n    return trimmedValue === '' || trimmedValue === '{}' || trimmedValue === '[]';\n  }\n\n  if (typeof value === 'object') {\n    return Object.keys(value).length === 0;\n  }\n  \n  return false;\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4512,
+        672
+      ],
+      "id": "dfe172af-2ece-4beb-af5c-0342f2775cd0",
+      "name": "Texto para usuario"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').first().json.message.chat.id }}",
+        "text": "={{ $json.mensagemParaUsuario }}",
+        "additionalFields": {
+          "parse_mode": "MarkdownV2"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        4704,
+        672
+      ],
+      "id": "80f9cacd-43c1-4d99-8628-b4db852598a4",
+      "name": "Mensagem para usuario",
+      "webhookId": "53eaa294-0dd2-40c1-8ddb-dc7b6112d858",
+      "credentials": {
+        "telegramApi": {
+          "id": "9IebXQnmLDyZJUrx",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "9d0f668c-2688-4905-9499-150fdac7d59e",
+              "leftValue": "={{ $('AI Agent1').item.json.output.subIntent }}",
+              "rightValue": "disponibilidade",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3744,
+        272
+      ],
+      "id": "2dafe4ab-d305-41ab-8de4-689fa26878b8",
+      "name": "Consultar disponibilidade"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT \n  D.data,\n  D.hora,\n  E.name\nFROM barbershop.diary AS D\n  INNER JOIN\nbarbershop.employee AS E ON D.employe_id = E.id\nWHERE\n  D.client_id = {{ $json.clientId }}\n  AND D.data BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '7 days'\n-- AND hora > EXTRACT(HOUR FROM NOW())",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        4336,
+        672
+      ],
+      "id": "f877fb8c-e2df-497e-86d3-212a4f047383",
+      "name": "Execute a SQL query",
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "DVJieuAmVV8lO2yh",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "hnaeMyWxidwtebeI",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/hnaeMyWxidwtebeI",
+          "cachedResultName": "Acelera Desafio — Get Client"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        3088,
+        -16
+      ],
+      "id": "2b4ae8d9-56ba-4569-92d1-c8c5d6d53867",
+      "name": "Call 'Get Client'2"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"idClient\": {{ $('Telegram Trigger').item.json.message.from.id }},\n  \"clientName\": \"{{ $('Telegram Trigger').item.json.message.from.first_name }} {{ $('Telegram Trigger').item.json.message.from.last_name }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2864,
+        -16
+      ],
+      "id": "4e6a56df-f857-4c97-9433-675743328175",
+      "name": "Set SubWorkflow Input"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').first().json.message.chat.id }}",
+        "text": "={{ $json.mensagemParaUsuario }}",
+        "additionalFields": {
+          "parse_mode": "MarkdownV2"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        5600,
+        256
+      ],
+      "id": "f6a46564-17f9-4b4c-9182-81d651833c40",
+      "name": "Send a text message",
+      "webhookId": "a53aed70-a4c0-490f-8ae1-7c3ba0b7d9dd",
+      "credentials": {
+        "telegramApi": {
+          "id": "9IebXQnmLDyZJUrx",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "skbXLjvptf5nKt8Y",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/skbXLjvptf5nKt8Y",
+          "cachedResultName": "Acelera Desafio — Consultar Horários"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {}
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        5328,
+        -144
+      ],
+      "id": "c64063cf-04ec-4f3c-98a3-7be5f2ed400e",
+      "name": "Call 'Consultar Horários'"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "skbXLjvptf5nKt8Y",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/skbXLjvptf5nKt8Y",
+          "cachedResultName": "Acelera Desafio — Consultar Horários"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {}
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        4944,
+        256
+      ],
+      "id": "1386da08-d8f4-463b-9665-70946442b2d9",
+      "name": "Call 'Consultar Horários'1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b9df7c1c-10e5-41ad-aa32-2236616030ba",
+              "leftValue": "={{ $json.data.approved }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1840,
+        672
+      ],
+      "id": "e3ae958d-f7a8-4066-b602-75fad397c342",
+      "name": "Agendar ou Consultar Disponibilidade"
+    },
+    {
+      "parameters": {
+        "content": "## Marcar Horário\n",
+        "height": 608,
+        "width": 2064
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3728,
+        -192
+      ],
+      "id": "ed5dfbdb-18e8-49ae-bfce-27b22b52b4fe",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {
+        "content": "## Consultar Horários \n",
+        "height": 288,
+        "width": 896,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4016,
+        592
+      ],
+      "typeVersion": 1,
+      "id": "4e1bb5f8-b1b3-4c2e-a68e-99d7728bd9a3",
+      "name": "Sticky Note9"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"AgentInfos\": {{ $('AI Agent1').item.json.output }},\n  \"otherInfos\": {{ $('Code in JavaScript').item.json }}\n}\n ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4704,
+        256
+      ],
+      "id": "6704b5bd-4057-4769-a0e6-3faefca741ba",
+      "name": "Set Consulta Horarios"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"idClient\": {{ $('Telegram Trigger').item.json.message.chat.id }},\n  \"clientName\": \"{{ $('Telegram Trigger').item.json.message.from.first_name }} {{ $('Telegram Trigger').item.json.message.from.last_name }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2512,
+        688
+      ],
+      "id": "eb16406a-ae56-42c3-b415-e58fcafaa371",
+      "name": "Set SubWorkflow Input1"
+    },
+    {
+      "parameters": {
+        "content": "## Cancelar horários",
+        "height": 496,
+        "width": 2064,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3728,
+        -720
+      ],
+      "typeVersion": 1,
+      "id": "e2b4e9b0-2076-4d0c-8665-f7c4657251df",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT\n  D.code,\n  D.data,\n  D.hora,\n  E.name\nFROM barbershop.diary AS D\n  INNER JOIN\nbarbershop.employee AS E ON D.employe_id = E.id\nWHERE\n  D.client_id = {{ $('Code in JavaScript').item.json.client.id }}\n  AND D.data BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '7 days'\nAND hora >= EXTRACT(HOUR FROM NOW())",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        4192,
+        -464
+      ],
+      "id": "ea4e0edb-cfbc-4f0b-9261-92a62245c063",
+      "name": "Get Client diary",
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "DVJieuAmVV8lO2yh",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "04918bf9-6c6e-4824-8e31-119822c73b10",
+              "leftValue": "={{ $json.clientHasDiary }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        4560,
+        -464
+      ],
+      "id": "4652395e-f673-4920-9c32-f4bfc6a8afe4",
+      "name": "Cliente possui agendamento"
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "message": "=Confirma que seja cancelado o serviço com as seguintes informações:\n\nData: {{ new Date($('Get Client diary').item.json.data).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }) }}\nHora: {{ $('Get Client diary').item.json.hora }}:00\nBarbeiro: {{ $('Get Client diary').item.json.name }}",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double",
+            "approveLabel": "✅ Confirmar",
+            "disapproveLabel": "❌ Recusar"
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        4784,
+        -560
+      ],
+      "id": "18bf5eb2-8a65-43d2-9eb9-1791cd0799d2",
+      "name": "Confirmar horário a cancelar",
+      "webhookId": "51da1a17-1f54-452e-8b8d-859a1f6cd98a",
+      "credentials": {
+        "telegramApi": {
+          "id": "9IebXQnmLDyZJUrx",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "let getDiary1 = null;\nlet getClientDiary = null;\n\ntry {\n  getDiary1 = $('Get diary1')?.first()?.json ?? null;\n} catch (e) {}\n\ntry {\n  getClientDiary = $('Get Client diary')?.first()?.json ?? null;\n} catch (e) {}\n\nlet data = getDiary1?.data ?? getClientDiary?.data ?? null;\nlet hora = getDiary1?.hora ?? getClientDiary?.hora ?? null;\nlet code = getDiary1?.code ?? getClientDiary?.code ?? null;\nlet name = getDiary1?.name ?? getClientDiary?.name ?? null;\n\nreturn [{\n  json: {\n    clientHasDiary: !!data,\n    data,\n    hora,\n    code,\n    name\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4368,
+        -464
+      ],
+      "id": "e5be4b83-b8a5-4b14-9198-c5d48d2146c1",
+      "name": "Montar JSON"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "95b17375-c522-4cf9-b8f8-54fc15333aef",
+              "leftValue": "={{ $json.data }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "a090eba6-35a0-4471-8a5a-6fcb4d36836a",
+              "leftValue": "={{ $json.hora }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3984,
+        -560
+      ],
+      "id": "72a5c2b6-4a13-4245-ae0e-009d30e443c9",
+      "name": "Possui data e hora"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"mensagemParaUsuário\": \"Você não possui agendamentos para cancelar.\"\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4784,
+        -384
+      ],
+      "id": "1b410782-6ba3-4079-895e-1348d01446d0",
+      "name": "Definir mensagem de não agendamentos"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json['mensagemParaUsuário'] }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        5600,
+        -384
+      ],
+      "id": "1d11c616-fc31-40c2-93b0-a8999aaff81a",
+      "name": "Enviar Mensagem",
+      "webhookId": "5619919d-4314-4fd3-b502-572eea20cf20",
+      "credentials": {
+        "telegramApi": {
+          "id": "9IebXQnmLDyZJUrx",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "464c2a75-3eab-4ee1-b41a-2f627a6b8b70",
+              "leftValue": "={{ $json.data.approved }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        4960,
+        -560
+      ],
+      "id": "7a75094b-9c3c-49aa-a845-34ff49745f3d",
+      "name": "Confirmar cancelamento"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"mensagemParaUsuário\": \"Por favor especificar na mensagem qual o horário e data a serem cancelados.\"\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        5168,
+        -496
+      ],
+      "id": "6a194e54-cb38-494d-a627-774809b0ef22",
+      "name": "Canelamento recusado"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE barbershop.diary SET client_id = NULL\nWHERE code = {{ $('Get Client diary').item.json.code }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        5168,
+        -656
+      ],
+      "id": "e1884f2b-eac9-4445-bb31-97b589efe8d7",
+      "name": "Execute a SQL query1",
+      "credentials": {
+        "postgres": {
+          "id": "DVJieuAmVV8lO2yh",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"mensagemParaUsuário\": \"Seu agendamento foi cancelado com sucesso!\"\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        5376,
+        -656
+      ],
+      "id": "b4c37ccb-9f49-413c-bede-8933ff9b036b",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT\n  D.code,\n  D.data,\n  D.hora,\n  E.name\nFROM barbershop.diary AS D\n  INNER JOIN \nbarbershop.employee AS E ON D.employe_id = E.id\nWHERE\n  D.client_id = {{ $('Code in JavaScript').item.json.client.id }}\n  AND D.data = '{{ $('Code in JavaScript').item.json.data }}'\n  AND D.hora = {{ $('Code in JavaScript').item.json.hora }}\n  AND employe_id = {{ $('Code in JavaScript').item.json.barbeiro }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        4192,
+        -640
+      ],
+      "id": "3adf39bc-9bd2-4e87-af1f-dd10b0907dd9",
+      "name": "Get diary1",
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "DVJieuAmVV8lO2yh",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"AgentInfos\": {{ $('AI Agent1').item.json.output }},\n  \"otherInfos\": {{ $('Code in JavaScript').item.json }}\n}\n ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        5088,
+        -144
+      ],
+      "id": "3cb57032-cbcd-4350-83df-805a31ad5d8a",
+      "name": "Set Consulta Horarios1"
+    },
+    {
+      "parameters": {
+        "jsCode": "let disponibilidade = null;\nlet getClient = null;\n\ntry {\n  disponibilidade = $('Code in JavaScript')?.first()?.json ?? null;\n} catch (e) {\n  disponibilidade = null;\n}\n\ntry {\n  getClient =  $('Get Client ID').first().json ?? null;\n} catch (e) {\n  getClient = null;\n}\n\nlet clientId = disponibilidade?.client?.id ?? (getClient?.id ?? null);\n\n// Retorna o resultado final\nreturn [\n  {\n    json: {\n      clientId: clientId\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4064,
+        672
+      ],
+      "id": "efafcdec-5239-4c1f-ab79-c9adfb072d43",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE barbershop.diary SET client_id = {{ $('Code in JavaScript').item.json.client.id }}\nWHERE code = {{ $json.code }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        4880,
+        48
+      ],
+      "id": "810e2d91-cc77-48c9-babd-3568cd7b54b9",
+      "name": "Execute a SQL query2",
+      "credentials": {
+        "postgres": {
+          "id": "DVJieuAmVV8lO2yh",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "hnaeMyWxidwtebeI",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/hnaeMyWxidwtebeI",
+          "cachedResultName": "Acelera Desafio — Get Client"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        2736,
+        688
+      ],
+      "id": "bc0f5b1a-b715-4fd0-92d3-843168e8e255",
+      "name": "Get Client ID"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "56b2a9cb-3115-45ac-a53b-30a8e57bd8a8",
+              "leftValue": "={{ $('Get Employee').item.json }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2544,
+        144
+      ],
+      "id": "7fec0e55-8367-442b-b9ae-3230193a8f65",
+      "name": "Barbeiro Encontrado"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "Não encontramos nenhum funcionario com esse nome.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2848,
+        240
+      ],
+      "id": "93080990-12b1-48e1-9639-30769d0a6929",
+      "name": "Send a text message3",
+      "webhookId": "21fdf656-c383-4e73-b254-60d0b342139f",
+      "credentials": {
+        "telegramApi": {
+          "id": "9IebXQnmLDyZJUrx",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Telegram Trigger": [
+      {
+        "json": {
+          "update_id": 578557462,
+          "message": {
+            "message_id": 45,
+            "from": {
+              "id": 12345,
+              "is_bot": false,
+              "first_name": "João Pedro",
+              "last_name": "Santos",
+              "username": "JpedroSantos08",
+              "language_code": "pt-br"
+            },
+            "chat": {
+              "id": 698870974,
+              "first_name": "João Pedro",
+              "last_name": "Santos",
+              "username": "JpedroSantos08",
+              "type": "private"
+            },
+            "date": 1760548857,
+            "text": "Gostaria de cancelar meu agendamento de hoje com o Bruno"
+          }
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Possui data e hora",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Has date and hour",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Consultar disponibilidade",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Solicitação Valida?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Possui Barbeiro?": {
+      "main": [
+        [
+          {
+            "node": "Seleciona Barbeiro",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Employee",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Employee": {
+      "main": [
+        [
+          {
+            "node": "Barbeiro Encontrado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has date and hour": {
+      "main": [
+        [
+          {
+            "node": "Get diary",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set Consulta Horarios",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get diary": {
+      "main": [
+        [
+          {
+            "node": "Horario Indisponivel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Horario Indisponivel": {
+      "main": [
+        [
+          {
+            "node": "Send a text message2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Execute a SQL query2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Seleciona Barbeiro": {
+      "main": [
+        [
+          {
+            "node": "Set SubWorkflow Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Solicitação Valida?": {
+      "main": [
+        [
+          {
+            "node": "Possui Barbeiro?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Service Classification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Service Classification": {
+      "main": [
+        [
+          {
+            "node": "Agendar ou Consultar Disponibilidade",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message2": {
+      "main": [
+        [
+          {
+            "node": "Set Consulta Horarios1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Texto para usuario": {
+      "main": [
+        [
+          {
+            "node": "Mensagem para usuario",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consultar disponibilidade": {
+      "main": [
+        [
+          {
+            "node": "Set Consulta Horarios",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query": {
+      "main": [
+        [
+          {
+            "node": "Texto para usuario",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call 'Get Client'2": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set SubWorkflow Input": {
+      "main": [
+        [
+          {
+            "node": "Call 'Get Client'2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call 'Consultar Horários'": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call 'Consultar Horários'1": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agendar ou Consultar Disponibilidade": {
+      "main": [
+        [
+          {
+            "node": "Possui Barbeiro?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set SubWorkflow Input1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Consulta Horarios": {
+      "main": [
+        [
+          {
+            "node": "Call 'Consultar Horários'1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set SubWorkflow Input1": {
+      "main": [
+        [
+          {
+            "node": "Get Client ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Client diary": {
+      "main": [
+        [
+          {
+            "node": "Montar JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cliente possui agendamento": {
+      "main": [
+        [
+          {
+            "node": "Confirmar horário a cancelar",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Definir mensagem de não agendamentos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Montar JSON": {
+      "main": [
+        [
+          {
+            "node": "Cliente possui agendamento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Possui data e hora": {
+      "main": [
+        [
+          {
+            "node": "Get diary1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Client diary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Definir mensagem de não agendamentos": {
+      "main": [
+        [
+          {
+            "node": "Enviar Mensagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Confirmar horário a cancelar": {
+      "main": [
+        [
+          {
+            "node": "Confirmar cancelamento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Confirmar cancelamento": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Canelamento recusado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Canelamento recusado": {
+      "main": [
+        [
+          {
+            "node": "Enviar Mensagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Enviar Mensagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get diary1": {
+      "main": [
+        [
+          {
+            "node": "Montar JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Consulta Horarios1": {
+      "main": [
+        [
+          {
+            "node": "Call 'Consultar Horários'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query2": {
+      "main": [
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Client ID": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Barbeiro Encontrado": {
+      "main": [
+        [
+          {
+            "node": "Set SubWorkflow Input",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "6fdef476-8bee-4bf2-b79e-e60535d91c98",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4bc25a5f6fdb4af7e87605adb2cb7c3c6239234be51978bb4c5ea7e9b80006ec"
+  },
+  "id": "MZVqHxztnjSuxvTT",
+  "tags": []
+}

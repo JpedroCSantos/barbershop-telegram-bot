@@ -1,5 +1,3 @@
-# Documentação Barbearia
-
 # Documentação
 
 ## 1. Visão Geral do Projeto
