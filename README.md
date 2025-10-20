@@ -137,7 +137,53 @@ Esta procedure é invocada (provavelmente por um CRON) para popular a tabela `di
 CREATE OR REPLACE PROCEDURE criar_agenda_semanal()
 LANGUAGE plpgsql
 AS $$
-BEGIN -- Inserimos na tabela 'diary' selecionando uma combinação de dados. -- O client_id começa como NULL, pois o horário está vago. INSERT INTO diary (data, hora, employe_id, client_id) -- O SELECT abaixo gera todas as combinações que precisamos SELECT dias.dia AS data, horas.hora AS hora, empregados.id AS employe_id, NULL AS client_id -- Fonte 1: Nossos empregados ativos FROM ( SELECT id FROM employer WHERE active = true ) AS empregados -- Fonte 2: As datas da próxima semana (de Segunda a Sábado) -- CROSS JOIN combina cada empregado com cada data. CROSS JOIN ( -- generate_series é uma função poderosa para criar sequências. -- Se hoje é Domingo, ele gera as datas de amanhã (Segunda) até Sábado. SELECT generate_series( date_trunc('week', current_date + interval '1 day'), date_trunc('week', current_date + interval '6 days'), '1 day' )::date AS dia ) AS dias -- Fonte 3: As horas de trabalho -- CROSS JOIN combina cada (empregado+data) com cada hora. CROSS JOIN ( SELECT generate_series(9, 12) AS hora -- Manhã UNION ALL SELECT generate_series(13, 19) AS hora -- Tarde ) AS horas -- Condição de segurança para evitar duplicatas! -- Só insere se não existir um registro para o mesmo empregado, no mesmo dia e hora. WHERE NOT EXISTS ( SELECT 1 FROM diary d2 WHERE d2.employe_id = empregados.id AND d2.data = dias.dia AND d2.hora = horas.hora );
+BEGIN
+    -- Inserimos na tabela 'diary' selecionando uma combinação de dados.
+    -- O client_id começa como NULL, pois o horário está vago.
+    INSERT INTO diary (data, hora, employe_id, client_id)
+    
+    -- O SELECT abaixo gera todas as combinações que precisamos
+    SELECT
+        dias.dia AS data,
+        horas.hora AS hora,
+        empregados.id AS employe_id,
+        NULL AS client_id
+    
+    -- Fonte 1: Nossos empregados ativos
+    FROM (
+        SELECT id FROM employer WHERE active = true
+    ) AS empregados
+    
+    -- Fonte 2: As datas da próxima semana (de Segunda a Sábado)
+    -- CROSS JOIN combina cada empregado com cada data.
+    CROSS JOIN (
+        -- generate_series é uma função poderosa para criar sequências.
+        -- Se hoje é Domingo, ele gera as datas de amanhã (Segunda) até Sábado.
+        SELECT generate_series(
+            date_trunc('week', current_date + interval '1 day'), 
+            date_trunc('week', current_date + interval '6 days'),
+            '1 day'
+        )::date AS dia
+    ) AS dias
+    
+    -- Fonte 3: As horas de trabalho
+    -- CROSS JOIN combina cada (empregado+data) com cada hora.
+    CROSS JOIN (
+        SELECT generate_series(9, 12) AS hora -- Manhã
+        UNION ALL
+        SELECT generate_series(13, 19) AS hora -- Tarde
+    ) AS horas
+
+    -- Condição de segurança para evitar duplicatas!
+    -- Só insere se não existir um registro para o mesmo empregado, no mesmo dia e hora.
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM diary d2
+        WHERE d2.employe_id = empregados.id
+          AND d2.data = dias.dia
+          AND d2.hora = horas.hora
+    );
+
 END;
 $$;
 ```
@@ -151,8 +197,33 @@ Como a tabela `diary` é particionada por mês, esta procedure de manutenção v
 CREATE OR REPLACE PROCEDURE criar_particao_agenda_proximo_mes()
 LANGUAGE plpgsql
 AS $$
-DECLARE proximo_mes_inicio DATE; mes_seguinte_inicio DATE; nome_particao TEXT;
-BEGIN -- Calcula o primeiro dia do próximo mês proximo_mes_inicio := date_trunc('month', current_date + interval '1 month')::date; -- Calcula o primeiro dia do mês seguinte a esse (para o limite superior da partição) mes_seguinte_inicio := date_trunc('month', current_date + interval '2 months')::date; -- Cria um nome para a tabela de partição, ex: 'diary_2025_11' nome_particao := 'diary_' || to_char(proximo_mes_inicio, 'YYYY_MM'); -- Verifica se a partição já existe IF NOT EXISTS (SELECT FROM pg_class WHERE relname = nome_particao) THEN -- Se não existir, cria a partição usando EXECUTE para SQL dinâmico EXECUTE format( 'CREATE TABLE %I PARTITION OF diary FOR VALUES FROM (%L) TO (%L);', nome_particao, proximo_mes_inicio, mes_seguinte_inicio ); RAISE NOTICE 'Partição % criada com sucesso.', nome_particao; ELSE RAISE NOTICE 'Partição % já existe.', nome_particao; END IF;
+DECLARE
+    proximo_mes_inicio DATE;
+    mes_seguinte_inicio DATE;
+    nome_particao TEXT;
+BEGIN
+    -- Calcula o primeiro dia do próximo mês
+    proximo_mes_inicio := date_trunc('month', current_date + interval '1 month')::date;
+    
+    -- Calcula o primeiro dia do mês seguinte a esse (para o limite superior da partição)
+    mes_seguinte_inicio := date_trunc('month', current_date + interval '2 months')::date;
+    
+    -- Cria um nome para a tabela de partição, ex: 'diary_2025_11'
+    nome_particao := 'diary_' || to_char(proximo_mes_inicio, 'YYYY_MM');
+    
+    -- Verifica se a partição já existe
+    IF NOT EXISTS (SELECT FROM pg_class WHERE relname = nome_particao) THEN
+        -- Se não existir, cria a partição usando EXECUTE para SQL dinâmico
+        EXECUTE format(
+            'CREATE TABLE %I PARTITION OF diary FOR VALUES FROM (%L) TO (%L);',
+            nome_particao,
+            proximo_mes_inicio,
+            mes_seguinte_inicio
+        );
+        RAISE NOTICE 'Partição % criada com sucesso.', nome_particao;
+    ELSE
+        RAISE NOTICE 'Partição % já existe.', nome_particao;
+    END IF;
 END;
 $$;
 ```
