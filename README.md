@@ -151,7 +151,7 @@ BEGIN
     
     -- Fonte 1: Nossos empregados ativos
     FROM (
-        SELECT id FROM employer WHERE active = true
+        SELECT id FROM employee WHERE active = true
     ) AS empregados
     
     -- Fonte 2: As datas da próxima semana (de Segunda a Sábado)
